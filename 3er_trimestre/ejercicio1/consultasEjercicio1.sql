@@ -1,0 +1,13 @@
+select * from productos;
+select * from proveedores;
+select productos.nombre_producto,productos.precio FROM productos;
+select proveedores.nombre_proveedor AS proveedores FROM proveedores;
+select productos.nombre_producto AS productos_stockbajo FROM productos WHERE productos.cantidades<30;
+SELECT productos.proveedor AS proveedor_cocacola FROM productos WHERE productos.nombre_producto="Cocacola";
+SELECT productos.cantidades AS cantidad_donuts FROM productos WHERE productos.nombre_producto="Donuts";
+select proveedores.domicilio AS proveedorOlsberga FROM proveedores WHERE proveedores.nombre_proveedor="Olsberga";
+select proveedores.nombre_proveedor AS proveedoresUK FROM proveedores WHERE proveedores.pais_procedencia="Reino Unido";
+select proveedores.nombre_proveedor AS proveedoresUK_ES FROM proveedores WHERE proveedores.pais_procedencia="Reino Unido" OR proveedores.pais_procedencia="España";
+select productos.nombre_producto AS productos_baratos FROM productos WHERE productos.precio<0.50;
+select productos.nombre_producto AS productos_OLSB1 FROM productos WHERE productos.proveedor="OLSB1";
+select proveedores.nombre_proveedor AS proveedoresES FROM proveedores WHERE proveedores.pais_procedencia="España";
