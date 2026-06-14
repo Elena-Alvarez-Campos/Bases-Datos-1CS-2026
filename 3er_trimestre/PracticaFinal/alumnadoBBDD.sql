@@ -1,3 +1,4 @@
+
 CREATE DATABASE AlumnadoBBDD;
 USE AlumnadoBBDD;
 CREATE TABLE alumnos(

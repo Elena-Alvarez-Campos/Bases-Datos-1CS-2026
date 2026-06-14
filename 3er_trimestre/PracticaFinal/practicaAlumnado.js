@@ -18,11 +18,12 @@ con.connect(function(err) {
   if (err) throw err;
   //console.log("Connected!");  
 });
+
 function muestratodo() {
     let imprimir="Lista de alumnos:\n"
     con.query('SELECT * FROM alumnos', (err, results) => {
         for(let cada_alumno of results){
-            imprimir+=cada_alumno.nombre+"\n"
+            imprimir+= (results.indexOf(cada_alumno)+1)+". "+cada_alumno.nombre+"\n"
         }
         console.log(imprimir)
         if (err) {
@@ -56,13 +57,23 @@ async function insertarAlumno(){
             throw new Error("El apellido no puede estar en blanco o ser más largo de 10 caracteres")
         }
         //Pregunta fecha nacimiento!!!!!
-        /*
-        let fechaDada=await rl.question("Escribe la fecha de nacimiento del alumno (día/mes/año):\n")
-        fechaDada=fechaDada.trim()
-        if(fechaDada.length>20 || fechaDada.length<=0){
-            throw new Error("El apellido no puede estar en blanco o ser más largo de 10 caracteres")
-        }*/
-        let fechaDada=DateTime.fromObject({year: 2000, month: 5, day:25}).toISO()
+        
+        let anoDado=await rl.question("Escribe el año de nacimiento del alumno\n")
+        if(isNaN(anoDado)||anoDado.trim().length!=4||anoDado>DateTime.now().year){//no pudo haber nacido e el futuro
+             throw new Error("El año no es compatible")
+        }
+        let mesDado=await rl.question("Escribe el mes de nacimiento del alumno\n")
+        if(isNaN(mesDado)||mesDado>12||mesDado<=0){
+             throw new Error("El mes no es compatible")
+        }
+        let diaDado=await rl.question("Escribe el día de nacimiento del alumno\n")
+        if(isNaN(diaDado)||diaDado>31||diaDado<=0){
+             throw new Error("El día no es compatible")
+        }
+        let fechaDada=DateTime.fromObject({year: anoDado, month: mesDado, day:diaDado}).toISO()
+        if((fechaDada.isValid)==false){
+            throw new Error("La fecha no es compatible")
+        }
         //Pregunta especialidad
         let especialidadDada= await rl.question("¿Que especialidad va a cursar?\n"+
             "1.DAM\n"+
@@ -107,13 +118,25 @@ async function insertarAlumno(){
                 throw new Error("No se ha escrito una opción compatible");
                 break;
         }
-        //Insertar alumno
-        var query = con.query('INSERT INTO alumnos(DNI, nombre, apellido1, apellido2, f_nacimiento, especialidad, curso, pagado) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', [DNIdado,nombreDado,apellidoDado1,apellidoDado2,fechaDada,especialidadDada,cursoDado,pagoDado], function(error, result){
-        if(error){
-            throw error;
-        }else{
-            console.log("Se ha añadido correctamente");
+        //Comprobación datos
+        let pregutaConfirmacion=("Comprueba que los datos son correctos: \n"+
+            "Nombre: "+nombreDado+"\n"+
+            "Apellidos: "+apellidoDado1+" "+apellidoDado2+"\n"+
+            "Fecha de nacimiento: "+DateTime.fromISO(fechaDada).toFormat("dd-MM-yyyy")+"\n"+
+            "Especielidad: "+especialidadDada+"\n"+
+            "Curso: "+cursoDado+"º"+"\n")
+        pagoDado==true ? pregutaConfirmacion+="Pagado: si" : pregutaConfirmacion+="Pagado: no"
+        pregutaConfirmacion+="\n¿Son los datos correctos? (s/n): "
+        let confirmacion= await rl.question(pregutaConfirmacion)
+        confirmacion=confirmacion.trim().toLowerCase()
+        if(confirmacion=="n"){
+            throw new Error("Datos erróneos, volviendo al menú de inicio");
+        }else if(confirmacion!="s" && confirmacion!="n"){
+            throw new Error("Valor incompatible");
+            
         }
+        //Insertar alumnos
+        var query = con.query('INSERT INTO alumnos(DNI, nombre, apellido1, apellido2, f_nacimiento, especialidad, curso, pagado) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', [DNIdado,nombreDado,apellidoDado1,apellidoDado2,fechaDada,especialidadDada,cursoDado,pagoDado], function(error, result){
     });
     } catch (error) {
         console.error(error.message)
@@ -123,7 +146,19 @@ async function insertarAlumno(){
     }
     
 }
-
+async function borrarAlumno(){
+    try {
+        muestratodo()
+        let respuesta=await rl.question("Elige un alumno para borrar de la lista\n")
+        if(respuesta)
+        let opcion=parseInt(respuesta)
+        
+    } catch (error) {
+        
+    } finally{
+        MenuPrincipal()
+    }
+}
 
 //export default connect;
 
@@ -164,13 +199,13 @@ async function MenuPrincipal() {
                     insertarAlumno()
                     break;
                 case 2:
-                    
+                    borrarAlumno()
                     break;
                 case 3:
                     
                     break;
-                case 4:
-                    muestratodo()
+                case 4:  
+                    muestratodo()                    
                     break;
                 case 5:
                     
